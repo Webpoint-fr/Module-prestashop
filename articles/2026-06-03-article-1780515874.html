@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Faille de sécurité du module PrestaShop ps_facetedsearch</title>
+<meta name="description" content="">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<style>body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:780px;margin:0 auto;padding:30px 20px;line-height:1.7;color:#222}h1{font-size:2em;line-height:1.2;color:#111}h2{margin-top:1.8em;color:#333;border-bottom:1px solid #eee;padding-bottom:6px}img{max-width:100%;height:auto;border-radius:10px;display:block;margin:14px 0}a{color:#0066cc;text-decoration:none;border-bottom:1px solid #cfe0f5}a:hover{border-bottom-color:#0066cc}.cover{margin-bottom:25px}footer{margin-top:60px;padding-top:20px;border-top:1px solid #eee;color:#888;font-size:13px}</style>
+</head>
+<body>
+<h1>Faille de sécurité du module PrestaShop ps_facetedsearch</h1>
+<p class="cover"><img src="https://webpoint.fr/img/blog-ia/covers/article-1797.jpg" alt="Faille de sécurité du module PrestaShop ps_facetedsearch"></p>
+<!-- ===== TITRE ===== -->
+<p style="background:#fee2e2;color:#991b1b;font-weight:bold;font-size:13px;letter-spacing:1px;text-transform:uppercase;padding:6px 14px;margin:0 0 16px;">🚨 Alerte sécurité PrestaShop</p>
+<h1 style="font-size:34px;line-height:1.25;margin:0 0 12px;color:#0f172a;">🛡️ Faille critique du module <span style="color:#dc2626;">ps_facetedsearch</span> : votre boutique PrestaShop est-elle en danger ?</h1>
+<p style="font-size:18px;color:#64748b;margin:0;">Tout comprendre sur la vulnérabilité de la « Recherche à facettes », savoir si vous avez déjà été piraté, et fermer la porte en 5 minutes. ⏱️</p>
+<!-- ===== MOTS CLÉS ===== -->
+<div style="background:#f1f5f9;padding:16px 20px;margin-bottom:28px;"><strong style="color:#0f172a;">🔑 Mots-clés :</strong> <span style="color:#475569;">faille PrestaShop, ps_facetedsearch, sécurité e-commerce, injection SQL, recherche à facettes, mise à jour PrestaShop, webshell, piratage boutique en ligne, CVE PrestaShop, protéger PrestaShop</span></div>
+<!-- ===== INTRO ===== -->
+<p>Si vous gérez une boutique <strong>PrestaShop</strong>, cet article peut littéralement <strong>sauver votre site</strong>. 💾 Une faille de sécurité <span style="color:#dc2626;font-weight:bold;">critique</span> touche le module officiel <strong>ps_facetedsearch</strong> (la fameuse « Recherche à facettes » qui affiche les filtres prix / marque / couleur sur vos pages catégories). Elle permet à un attaquant d'agir <strong>sans aucun mot de passe, sans aucun compte</strong>. 😱</p>
+<p>Bonne nouvelle : la corriger est <strong>simple et rapide</strong>. Encore faut-il savoir <em>quoi vérifier</em>. On vous explique tout, étape par étape, même si vous n'êtes pas développeur. 👇</p>
+<p> </p>
+<!-- ===== ENCADRÉ RÉSUMÉ ===== -->
+<div style="border-left:6px solid #f59e0b;padding:20px 24px;margin:28px 0;">
+<h2 style="margin:0 0 12px;font-size:20px;color:#78350f;">⚡ En résumé (pour les pressés)</h2>
+<ul style="margin:0;padding-left:22px;color:#7c2d12;">
+<li><strong>Module concerné :</strong> ps_facetedsearch (Recherche à facettes)</li>
+<li><strong>Versions vulnérables :</strong> de la 3.0.0 à la 4.0.3</li>
+<li><strong>Version corrigée :</strong> 4.0.4 ✅</li>
+<li><strong>Gravité :</strong> 🔴 Critique (exécution de code à distance, sans authentification)</li>
+<li><strong>Action :</strong> Mettre à jour en 4.0.4 <em>ou</em> renommer/supprimer le module si vous ne l'utilisez pas.</li>
+</ul>
+</div>
+<!-- ===== SECTION 1 ===== -->
+<h2 style="font-size:26px;color:#0f172a;border-bottom:3px solid #e2e8f0;padding-bottom:8px;margin-top:40px;">🔍 1. C'est quoi, concrètement, cette faille ?</h2>
+<p>Le module « Recherche à facettes » lit les filtres directement depuis l'adresse de la page (ce qui se trouve après le <code style="background:#f1f5f9;padding:2px 6px;">?q=</code> dans l'URL). Exemple d'une URL <strong>parfaitement normale</strong> :</p>
+<pre style="background:#0f172a;color:#86efac;padding:16px;font-size:14px;">/3-chaussures?q=Couleur-Noir/Marque-Nike&amp;order=product.price.asc</pre>
+<p>Le problème : dans les versions vulnérables, ces filtres ne sont <strong>pas suffisamment nettoyés</strong> avant d'être utilisés. Un attaquant peut donc glisser des instructions malveillantes à la place d'un simple « Noir » ou « Nike ». C'est ce qu'on appelle une <strong style="color:#dc2626;">injection SQL</strong> 💉 — et dans le pire des cas, elle permet de déposer un fichier pirate sur le serveur pour en prendre le contrôle.</p>
+<!-- ===== SECTION 2 ===== -->
+<h2 style="font-size:26px;color:#0f172a;border-bottom:3px solid #e2e8f0;padding-bottom:8px;margin-top:40px;">🎭 2. Comment un pirate s'y prend (exemples volontairement incomplets)</h2>
+<div style="background:#eff6ff;border-left:6px solid #3b82f6;padding:16px 20px;margin:20px 0;">
+<p style="margin:0;color:#1e40af;">ℹ️ <strong>Note importante :</strong> les exemples ci-dessous sont <strong>tronqués et neutralisés</strong> exprès. Le but est que vous <em>reconnaissiez</em> une attaque dans vos journaux, <strong>pas</strong> de fournir un mode d'emploi. 🙅‍♂️</p>
+</div>
+<p><strong>Étape 1 — l'attaquant teste l'injection.</strong> Au lieu d'un filtre normal, il envoie quelque chose comme :</p>
+<pre style="background:#0f172a;color:#fca5a5;padding:16px;font-size:14px;">/3-categorie?q=Poids-0)%20UNION%20SELECT%20…(coupé)…--%20-</pre>
+<p><strong>Étape 2 — il cherche à déposer un fichier piégé</strong> (un « webshell ») dans un dossier du site, à l'aide d'instructions du type <code style="background:#f1f5f9;padding:2px 6px;">INTO OUTFILE '…/up.php'</code>. C'est précisément pourquoi l'éditeur recommande de chercher <strong>des fichiers PHP anormaux</strong> dans le dossier du module.</p>
+<p><strong>Étape 3 — il utilise ce fichier pour exécuter des commandes :</strong></p>
+<pre style="background:#0f172a;color:#fca5a5;padding:16px;font-size:14px;">/modules/ps_facetedsearch/up.php?c=…(commande)…</pre>
+<p>👉 En clair : le pirate passe de « visiteur anonyme » à « propriétaire de votre serveur » en quelques requêtes. Il peut alors voler vos données clients, injecter du spam SEO, ou rediriger vos paiements. 💳❌</p>
+<!-- ===== SECTION 3 ===== -->
+<h2 style="font-size:26px;color:#0f172a;border-bottom:3px solid #e2e8f0;padding-bottom:8px;margin-top:40px;">🕵️ 3. Suis-je DÉJÀ piraté ? Les vérifications à faire</h2>
+<p>Voici les signes qui ne trompent pas. Vous pouvez demander ces vérifications à votre hébergeur ou à votre développeur si vous n'êtes pas à l'aise avec la ligne de commande.</p>
+<!-- ===== BANDEAU PUB : WebPoint Monitoring ===== -->
+<div style="max-width:860px;margin:36px auto;padding:28px 28px;font-family:'Segoe UI', Arial, sans-serif;color:#ffffff;text-align:center;">
+<div style="font-size:13px;font-weight:bold;letter-spacing:1px;text-transform:uppercase;background:rgba(255,255,255,0.18);padding:6px 14px;margin-bottom:16px;">🛡️ La solution WebPoint</div>
+<h3 style="font-size:26px;line-height:1.3;margin:0 0 12px;color:#ffffff;">😮‍ Heureusement, ne paniquez pas : on veille pour vous !</h3>
+<p style="font-size:17px;line-height:1.7;margin:0 auto 22px;max-width:680px;color:#ecfdf5;">Et si vous étiez <strong>prévenu à la seconde où un pirate touche un fichier</strong> ? Notre module <strong>WebPoint Monitoring</strong> surveille votre boutique <strong>en temps réel</strong> : 🔍 toute <strong>modification</strong>, 🆕 <strong>création</strong> ou 🗑️ <strong>suppression</strong> de fichier déclenche une <strong>alerte immédiate</strong>. Vous repérez une intrusion <em>avant</em> qu'elle ne fasse des dégâts. 🚀</p>
+<div style="margin-bottom:24px;"><span style="background:rgba(255,255,255,0.15);padding:8px 14px;font-size:14px;">✅ Surveillance temps réel</span> <span style="background:rgba(255,255,255,0.15);padding:8px 14px;font-size:14px;">🔔 Alertes instantanées</span> <span style="background:rgba(255,255,255,0.15);padding:8px 14px;font-size:14px;">🛡️ Anti-piratage</span> <span style="background:rgba(255,255,255,0.15);padding:8px 14px;font-size:14px;">⚙️ Zéro config compliquée</span></div>
+<a style="background:#ffffff;color:#065f46;font-weight:800;font-size:18px;text-decoration:none;padding:16px 34px;" href="https://webpoint.fr/fr/modules-prestashop-marketing-conversion/236-webpoint-monitoring-surveillance-d-integrite-des-fichiers-prestashop-anti-piratage-temps-reel.html"> 🔒 Protéger ma boutique maintenant → </a>
+<p style="font-size:13px;color:#d1fae5;margin:18px 0 0;">Dormez tranquille : si un fichier bouge, vous le saurez. 😴✨</p>
+</div>
+<h3 style="font-size:20px;color:#0f172a;margin-top:24px;">✅ A. Des fichiers PHP qui n'ont rien à faire là</h3>
+<p>Cherchez tout fichier <code style="background:#f1f5f9;padding:2px 6px;">.php</code> récent ou inattendu dans le dossier du module :</p>
+<pre style="background:#0f172a;color:#93c5fd;padding:16px;font-size:14px;">find modules/ps_facetedsearch/ -name "*.php" -mtime -30</pre>
+<p>⚠️ Un fichier au nom bizarre (ex. <code style="background:#f1f5f9;padding:2px 6px;">up.php</code>, <code style="background:#f1f5f9;padding:2px 6px;">x.php</code>, <code style="background:#f1f5f9;padding:2px 6px;">shell.php</code>) ou une <strong>double extension</strong> (ex. <code style="background:#f1f5f9;padding:2px 6px;">logo.png.php</code>) = très mauvais signe. 🚩</p>
+<h3 style="font-size:20px;color:#0f172a;margin-top:24px;">✅ B. Des traces d'attaque dans les journaux du serveur</h3>
+<p>Cherchez les requêtes contenant des signatures d'injection SQL :</p>
+<pre style="background:#0f172a;color:#93c5fd;padding:16px;font-size:14px;">grep -iE "union.+select|into.+outfile|information_schema" access.log</pre>
+<p>Si vous trouvez ces mots dans des URL visiteurs, quelqu'un a <strong>tenté</strong> quelque chose. Vérifiez ensuite le <strong>code de réponse</strong> : un <code style="background:#dcfce7;color:#166534;padding:2px 6px;">200</code> avec une grosse réponse est plus inquiétant qu'un <code style="background:#fee2e2;color:#991b1b;padding:2px 6px;">404</code> / <code style="background:#fee2e2;color:#991b1b;padding:2px 6px;">302</code>.</p>
+<h3 style="font-size:20px;color:#0f172a;margin-top:24px;">✅ C. Des fichiers PHP cachés ailleurs (racine, /img, /upload)</h3>
+<p>Aucun fichier exécutable ne devrait normalement vivre dans <code style="background:#f1f5f9;padding:2px 6px;">/img</code> ou <code style="background:#f1f5f9;padding:2px 6px;">/upload</code> (à part les <code style="background:#f1f5f9;padding:2px 6px;">index.php</code> vides de PrestaShop) :</p>
+<pre style="background:#0f172a;color:#93c5fd;padding:16px;font-size:14px;">find img/ upload/ -name "*.php"</pre>
+<h3 style="font-size:20px;color:#0f172a;margin-top:24px;">✅ D. Les autres pièges classiques</h3>
+<ul style="padding-left:22px;">
+<li>👤 Un <strong>compte administrateur</strong> que vous ne reconnaissez pas (Paramètres avancés → Équipe).</li>
+<li>📝 Des <strong>descriptions / méta-descriptions</strong> de pages modifiées avec du texte ou des liens étrangers (spam SEO).</li>
+<li>⏰ Une <strong>tâche planifiée (CRON)</strong> inconnue.</li>
+<li>🔀 Des <strong>redirections</strong> inattendues vers d'autres sites.</li>
+</ul>
+<!-- ===== SECTION 4 ===== -->
+<h2 style="font-size:26px;color:#0f172a;border-bottom:3px solid #e2e8f0;padding-bottom:8px;margin-top:40px;">🛠️ 4. Comment fermer la porte (en 5 minutes)</h2>
+<div style="margin:24px 0;">
+<div style="min-width:240px;background:#ecfdf5;border:2px solid #10b981;padding:20px;">
+<h3 style="margin:0 0 10px;color:#065f46;font-size:19px;">🟢 Option 1 — Vous utilisez la recherche à facettes</h3>
+<p style="margin:0;color:#065f46;">👉 <strong>Mettez le module à jour en version 4.0.4</strong> (ou plus récente).<br /><br />Dans votre back-office : <strong>Modules → Mises à jour</strong>, cherchez « Recherche à facettes » puis cliquez sur <strong>Mettre à jour</strong>. C'est tout. ✅</p>
+</div>
+<div style="min-width:240px;background:#eff6ff;border:2px solid #3b82f6;padding:20px;">
+<h3 style="margin:0 0 10px;color:#1e40af;font-size:19px;">🔵 Option 2 — Vous ne l'utilisez pas</h3>
+<p style="margin:0;color:#1e40af;">👉 <strong>Désactivez-le, ou supprimez/renommez son dossier.</strong><br /><br />Le plus simple : back-office → <strong>Modules</strong> → désinstaller la « Recherche à facettes ». Côté serveur, renommer le dossier <code style="background:#dbeafe;padding:2px 6px;">ps_facetedsearch</code> suffit à neutraliser la faille. 🔒</p>
+</div>
+</div>
+<div style="background:#fef2f2;border-left:6px solid #ef4444;padding:16px 20px;margin:24px 0;">
+<p style="margin:0;color:#991b1b;">🚑 <strong>Si vous trouvez des signes de piratage</strong> (fichier suspect, compte admin inconnu…) : ne paniquez pas, mais agissez vite. Faites une sauvegarde, supprimez les fichiers malveillants, <strong>changez TOUS vos mots de passe</strong> (admin, base de données, FTP), et faites-vous aider par un expert PrestaShop si besoin. 🔑🔄</p>
+</div>
+<!-- ===== SECTION 5 ===== -->
+<h2 style="font-size:26px;color:#0f172a;border-bottom:3px solid #e2e8f0;padding-bottom:8px;margin-top:40px;">🧱 5. Bonus : 6 réflexes pour ne plus jamais se faire avoir</h2>
+<ol style="padding-left:22px;">
+<li>🔄 <strong>Mettez à jour</strong> PrestaShop et tous vos modules régulièrement.</li>
+<li>🧹 <strong>Supprimez les modules inutilisés</strong> : chaque module = une porte potentielle.</li>
+<li>👁️ Installez un <strong>module de surveillance de fichiers</strong> (alerte dès qu'un fichier est créé/modifié).</li>
+<li>🛡️ Activez un <strong>pare-feu applicatif (WAF)</strong> chez votre hébergeur.</li>
+<li>🚫 Demandez à désactiver les <strong>fonctions PHP dangereuses</strong> (exec, system, shell_exec, passthru…).</li>
+<li>💾 Faites des <strong>sauvegardes automatiques</strong> et testez-les.</li>
+</ol>
+<!-- ===== CONCLUSION ===== -->
+<h2 style="font-size:26px;color:#0f172a;border-bottom:3px solid #e2e8f0;padding-bottom:8px;margin-top:40px;">🎯 Conclusion</h2>
+<p>Cette faille est sérieuse, mais la parade est <strong>à la portée de tous</strong> : <strong>mettez à jour en 4.0.4</strong>, ou <strong>débarrassez-vous du module</strong> si vous ne vous en servez pas. Prenez 5 minutes <strong>aujourd'hui</strong> 🕐 — c'est infiniment moins coûteux que de récupérer une boutique piratée. 💪</p>
+<div style="text-align:center;margin:36px 0 8px;"><a style="background:#dc2626;color:#fff;font-weight:bold;font-size:18px;text-decoration:none;padding:16px 32px;" href="#">🔒 Sécurisez votre boutique maintenant</a></div>
+<p style="text-align:center;color:#94a3b8;font-size:14px;margin-top:24px;">Article informatif rédigé à but de prévention. Les exemples techniques sont volontairement incomplets pour des raisons de sécurité. 🙏</p>
+
+
+<p><em>Article publié à l'origine sur <a href="https://webpoint.fr/fr/blog/1797-faille-de-securite-du-module-prestashop-ps-facetedsearch" rel="canonical">webpoint.fr</a>.</em></p>
+<footer>Publié le 03/06/2026 — <a href="https://webpoint.fr">webpoint.fr</a></footer>
+</body>
+</html>
